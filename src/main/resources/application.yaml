@@ -3,15 +3,9 @@ spring:
     name:
       spring-kafka-batch-demo
   datasource:
-    url: jdbc:postgresql://localhost:5432/demo_spring_batch
+    url: jdbc:postgresql://localhost:5432/spring_batch_demo
     username: root
     password: password
-
-  jpa:
-    database-platform: org.hibernate.dialect.H2Dialect
-    hibernate:
-      ddl-auto: create
-    generate-ddl: true
   kafka:
     consumer:
       key-deserializer: org.apache.kafka.common.serialization.LongDeserializer
@@ -23,11 +17,12 @@ spring:
             trusted:
               packages: "*"
       auto-offset-reset: earliest
+      enable-auto-commit: false
     producer:
       key-serializer: org.apache.kafka.common.serialization.LongSerializer
       value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
     template:
-      default-topic: dummy-orders
+      default-topic: dummy-orders-v1
     bootstrap-servers: localhost:19092
   batch:
     jdbc:

@@ -1,7 +1,6 @@
 package com.ittovative.schedulingbatchprocessing.config;
 
 import com.ittovative.schedulingbatchprocessing.model.Person;
-import org.apache.kafka.common.TopicPartition;
 import org.springframework.batch.core.Job;
 import org.springframework.batch.core.Step;
 import org.springframework.batch.core.job.builder.JobBuilder;
@@ -9,53 +8,45 @@ import org.springframework.batch.core.launch.support.RunIdIncrementer;
 import org.springframework.batch.core.repository.JobRepository;
 import org.springframework.batch.core.step.builder.StepBuilder;
 import org.springframework.batch.item.ItemProcessor;
+import org.springframework.batch.item.file.FlatFileItemReader;
 import org.springframework.batch.item.file.FlatFileItemWriter;
+import org.springframework.batch.item.file.builder.FlatFileItemReaderBuilder;
 import org.springframework.batch.item.file.builder.FlatFileItemWriterBuilder;
-import org.springframework.batch.item.kafka.KafkaItemReader;
-import org.springframework.batch.item.kafka.builder.KafkaItemReaderBuilder;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.io.FileSystemResource;
-import org.springframework.kafka.core.DefaultKafkaConsumerFactory;
 import org.springframework.transaction.PlatformTransactionManager;
-
-import java.util.HashMap;
-import java.util.Properties;
+import java.util.Locale;
 
 @Configuration
 public class BatchConfig {
 
     @Bean
-    public KafkaItemReader<Long,Person> kafkaItemReader(DefaultKafkaConsumerFactory<Long,Person> kafkaConsumerFactory){
-        Properties kafkaConsumerProperties = new Properties();
-        kafkaConsumerProperties.putAll(kafkaConsumerFactory.getConfigurationProperties());
-        return new KafkaItemReaderBuilder<Long,Person>()
-                .name("kafka-item-reader")
-                .partitions(0)
+    public FlatFileItemReader<Person> flatItemReader(){
+        return new FlatFileItemReaderBuilder<Person>()
                 .saveState(true)
-                .topic("dummy-orders")
-                .consumerProperties(kafkaConsumerProperties)
-                /*.partitionOffsets(new HashMap<>())*/
+                .name("file-item-reader1")
+                .resource(new FileSystemResource("persons.csv"))
+                .delimited()
+                .names("name","age")
+                .targetType(Person.class)
                 .build();
     }
 
     @Bean
     public Job dummyJob(JobRepository jobRepository,
-                        PlatformTransactionManager platformTransactionManager,
-                        DefaultKafkaConsumerFactory<Long,Person> defaultKafkaConsumerFactory){
-        return new JobBuilder("dummy-job",jobRepository)
-                .start(dummyStep(jobRepository,platformTransactionManager,defaultKafkaConsumerFactory))
-                .incrementer(new RunIdIncrementer())
+                        PlatformTransactionManager platformTransactionManager){
+        return new JobBuilder("file-converter-job1",jobRepository)
+                .start(dummyStep(jobRepository,platformTransactionManager))
                 .build();
     }
 
     @Bean
     public Step dummyStep(JobRepository jobRepository,
-                          PlatformTransactionManager platformTransactionManager,
-                          DefaultKafkaConsumerFactory<Long,Person> defaultKafkaConsumerFactory){
-        return new StepBuilder("dummy-step",jobRepository)
+                          PlatformTransactionManager platformTransactionManager){
+        return new StepBuilder("file-converter-step1",jobRepository)
                 .<Person,Person>chunk(10,platformTransactionManager)
-                .reader(kafkaItemReader(defaultKafkaConsumerFactory))
+                .reader(flatItemReader())
                 .processor(itemProcessor())
                 .writer(flatFileItemWriter())
                 .build();
@@ -64,7 +55,8 @@ public class BatchConfig {
     @Bean
     public ItemProcessor<Person,Person> itemProcessor(){
         return item -> {
-            System.out.println(item + " being processed!");
+            System.out.println(item.getName() + " being processed!");
+            item.setName(item.getName().toLowerCase(Locale.ROOT));
             Thread.sleep(1000);
             return item;
         };
@@ -73,7 +65,7 @@ public class BatchConfig {
     @Bean
     public FlatFileItemWriter<Person> flatFileItemWriter(){
         return new FlatFileItemWriterBuilder<Person>()
-                .name("csv-item-writer")
+                .name("csv-item-writer1")
                 .append(true)
                 .saveState(true)
                 .delimited()

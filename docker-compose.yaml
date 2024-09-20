@@ -1,5 +1,14 @@
 version: '3'
 services:
+  postgres:
+    image: postgres
+    container_name: spring_batch_postgres_db
+    environment:
+      POSTGRES_USER: root
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: spring_batch
+    ports:
+      - "5432:5432"
   zookeeper:
     image: confluentinc/cp-zookeeper:latest
     container_name: spring-batch-zookeeper-demo
