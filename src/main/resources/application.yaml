@@ -22,7 +22,7 @@ spring:
       key-serializer: org.apache.kafka.common.serialization.LongSerializer
       value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
     template:
-      default-topic: dummy-orders-v1
+      default-topic: dummy-orders-v3
     bootstrap-servers: localhost:19092
   batch:
     jdbc:
