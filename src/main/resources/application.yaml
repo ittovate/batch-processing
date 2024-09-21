@@ -16,16 +16,16 @@ spring:
           json:
             trusted:
               packages: "*"
-      auto-offset-reset: earliest
       enable-auto-commit: false
+      auto-offset-reset: earliest
     producer:
       key-serializer: org.apache.kafka.common.serialization.LongSerializer
       value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
     template:
-      default-topic: dummy-orders-v3
+      default-topic: orders
     bootstrap-servers: localhost:19092
   batch:
     jdbc:
       initialize-schema: always
     job:
-      enabled: true
+      enabled: false
