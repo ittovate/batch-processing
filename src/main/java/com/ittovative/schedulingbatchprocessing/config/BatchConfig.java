@@ -4,11 +4,13 @@ import com.ittovative.schedulingbatchprocessing.model.Order;
 import org.springframework.batch.core.Job;
 import org.springframework.batch.core.Step;
 import org.springframework.batch.core.job.builder.JobBuilder;
-import org.springframework.batch.core.launch.JobLauncher;
-import org.springframework.batch.core.launch.support.TaskExecutorJobLauncher;
 import org.springframework.batch.core.repository.JobRepository;
 import org.springframework.batch.core.step.builder.StepBuilder;
 import org.springframework.batch.item.ItemProcessor;
+import org.springframework.batch.item.database.JdbcPagingItemReader;
+import org.springframework.batch.item.database.PagingQueryProvider;
+import org.springframework.batch.item.database.builder.JdbcPagingItemReaderBuilder;
+import org.springframework.batch.item.database.support.SqlPagingQueryProviderFactoryBean;
 import org.springframework.batch.item.file.FlatFileItemWriter;
 import org.springframework.batch.item.file.builder.FlatFileItemWriterBuilder;
 import org.springframework.batch.item.kafka.KafkaItemReader;
@@ -16,51 +18,91 @@ import org.springframework.batch.item.kafka.builder.KafkaItemReaderBuilder;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.io.FileSystemResource;
-import org.springframework.core.task.SimpleAsyncTaskExecutor;
 import org.springframework.kafka.core.DefaultKafkaConsumerFactory;
 import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.transaction.PlatformTransactionManager;
 
+import javax.sql.DataSource;
 import java.util.HashMap;
 import java.util.Locale;
 import java.util.Properties;
 import java.util.logging.Logger;
 
 @Configuration
-@EnableScheduling
 public class BatchConfig {
 
     private final Logger logger = Logger.getLogger(BatchConfig.class.getName());
 
     @Bean
-    public JobLauncher asyncJobLauncher(JobRepository jobRepository) throws Exception {
-        TaskExecutorJobLauncher taskExecutorJobLauncher = new TaskExecutorJobLauncher();
-        taskExecutorJobLauncher.setJobRepository(jobRepository);
-        taskExecutorJobLauncher.setTaskExecutor(new SimpleAsyncTaskExecutor());
-        taskExecutorJobLauncher.afterPropertiesSet();
-        return taskExecutorJobLauncher;
-    }
-
-    @Bean("orderProcessingJob")
-    public Job orderProcessingJob(JobRepository jobRepository,
+    public Job databaseOrderProcessingJob(JobRepository jobRepository,
                         PlatformTransactionManager platformTransactionManager,
-                        DefaultKafkaConsumerFactory<Long,Order> kafkaConsumerFactory) {
-        return new JobBuilder("order-processing-job",jobRepository)
-                .start(processKafkaToFileStep(jobRepository,platformTransactionManager,kafkaConsumerFactory))
+                        DataSource dataSource,PagingQueryProvider pagingQueryProvider) {
+        return new JobBuilder("database-order-processing-job",jobRepository)
+                .start(databaseProcessOrder(jobRepository,platformTransactionManager,
+                        dataSource,pagingQueryProvider))
+                .build();
+    }
+    @Bean
+    public Job kafkaOrderProcessingJob(JobRepository jobRepository,
+                                  PlatformTransactionManager platformTransactionManager,
+                                  DefaultKafkaConsumerFactory<Long,Order> defaultKafkaConsumerFactory) {
+        return new JobBuilder("kafka-order-processing-job",jobRepository)
+                .start(kafkaProcessOrder(jobRepository,platformTransactionManager
+                        ,defaultKafkaConsumerFactory))
                 .build();
     }
 
     @Bean
-    public Step processKafkaToFileStep(JobRepository jobRepository,
+    public Step databaseProcessOrder(JobRepository jobRepository,
                                        PlatformTransactionManager platformTransactionManager,
-                                       DefaultKafkaConsumerFactory<Long,Order> kafkaConsumerFactory){
-        return new StepBuilder("order-processing-step",jobRepository)
-                .allowStartIfComplete(true)
+                                       DataSource dataSource,
+                                       PagingQueryProvider pagingQueryProvider){
+        return new StepBuilder("database-order-processing-step",jobRepository)
                 .<Order, Order> chunk(5,platformTransactionManager)
-                .reader(kafkaOrderItemReader(kafkaConsumerFactory))
+                .reader(jdbcOrderItemReader(dataSource,pagingQueryProvider))
                 .processor(itemProcessor())
                 .writer(flatFileItemWriter())
                 .build();
+    }
+    @Bean
+    public Step kafkaProcessOrder(JobRepository jobRepository,
+                             PlatformTransactionManager platformTransactionManager,
+                             DefaultKafkaConsumerFactory<Long,Order> defaultKafkaConsumerFactory){
+        return new StepBuilder("kafka-order-processing-step",jobRepository)
+                .<Order, Order> chunk(5,platformTransactionManager)
+                .reader(kafkaOrderItemReader(defaultKafkaConsumerFactory))
+                .processor(itemProcessor())
+                .writer(flatFileItemWriter())
+                .build();
+    }
+
+    @Bean
+    public JdbcPagingItemReader<Order> jdbcOrderItemReader(DataSource dataSource,
+                                                           PagingQueryProvider pagingQueryProvider) {
+        return new JdbcPagingItemReaderBuilder<Order>()
+                .saveState(true)
+                .name("jdbc-item-reader")
+                .dataSource(dataSource)
+                .queryProvider(pagingQueryProvider)
+                .pageSize(5)
+                .rowMapper((resultSet, rowNum) -> {
+                    int id = resultSet.getInt("id");
+                    String name = resultSet.getString("name");
+                    String description = resultSet.getString("description");
+                    return new Order(id, name, description);
+                })
+                .build();
+
+    }
+
+    @Bean
+    public SqlPagingQueryProviderFactoryBean pagingQueryProviderFactoryBean(DataSource dataSource){
+        SqlPagingQueryProviderFactoryBean factoryBean = new SqlPagingQueryProviderFactoryBean();
+        factoryBean.setDataSource(dataSource);
+        factoryBean.setSelectClause("select *");
+        factoryBean.setFromClause("from orders");
+        factoryBean.setSortKey("id");
+        return factoryBean;
     }
 
     @Bean
@@ -82,7 +124,7 @@ public class BatchConfig {
     public ItemProcessor<Order,Order> itemProcessor(){
         return item -> {
             logger.info("Order: {" + item.name().toLowerCase(Locale.ROOT) + "} is being processed!");
-            Thread.sleep(1000); // simulating real processing time
+            Thread.sleep(500); // simulating real processing time
             return item;
         };
     }
@@ -90,11 +132,11 @@ public class BatchConfig {
     @Bean
     public FlatFileItemWriter<Order> flatFileItemWriter(){
         return new FlatFileItemWriterBuilder<Order>()
-                .name("csv-order-item-writer")
+                .name("orders-item-writer")
                 .append(true)
                 .saveState(true)
                 .delimited()
-                .names("name","description")
+                .names("id","name","description")
                 .resource(new FileSystemResource("new_orders.csv"))
                 .build();
     }

@@ -3,7 +3,7 @@ spring:
     name:
       spring-kafka-batch-demo
   datasource:
-    url: jdbc:postgresql://localhost:5432/spring_batch_demo
+    url: jdbc:postgresql://localhost:5432/spring_batch
     username: root
     password: password
   kafka:

@@ -1,3 +1,3 @@
 package com.ittovative.schedulingbatchprocessing.model;
 
-public record Order(String name,String description){}
+public record Order(int id,String name,String description){}
