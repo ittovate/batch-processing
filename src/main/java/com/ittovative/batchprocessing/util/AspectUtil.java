@@ -1,4 +1,4 @@
-package com.ittovative.schedulingbatchprocessing.util;
+package com.ittovative.batchprocessing.util;
 
 import org.aspectj.lang.JoinPoint;
 

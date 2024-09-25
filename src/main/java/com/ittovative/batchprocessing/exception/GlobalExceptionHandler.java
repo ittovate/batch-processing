@@ -1,6 +1,6 @@
-package com.ittovative.schedulingbatchprocessing.exception;
+package com.ittovative.batchprocessing.exception;
 
-import com.ittovative.schedulingbatchprocessing.util.ApiResponse;
+import com.ittovative.batchprocessing.util.ApiResponse;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;

@@ -1,17 +1,13 @@
-package com.ittovative.schedulingbatchprocessing;
+package com.ittovative.batchprocessing;
 
-import com.ittovative.schedulingbatchprocessing.model.Order;
-import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
-import org.springframework.context.annotation.Bean;
-import org.springframework.kafka.core.KafkaTemplate;
 
 @SpringBootApplication
-public class SchedulingBatchProcessingApplication {
+public class BatchProcessingApplication {
 
     public static void main(String[] args) {
-        SpringApplication.run(SchedulingBatchProcessingApplication.class, args);
+        SpringApplication.run(BatchProcessingApplication.class, args);
     }
 
     // uncomment to insert dummy orders to kafka at the app's startup

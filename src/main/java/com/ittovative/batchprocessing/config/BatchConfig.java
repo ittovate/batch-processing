@@ -1,6 +1,6 @@
-package com.ittovative.schedulingbatchprocessing.config;
+package com.ittovative.batchprocessing.config;
 
-import com.ittovative.schedulingbatchprocessing.model.Order;
+import com.ittovative.batchprocessing.model.Order;
 import org.springframework.batch.core.Job;
 import org.springframework.batch.core.Step;
 import org.springframework.batch.core.job.builder.JobBuilder;
@@ -19,7 +19,6 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.io.FileSystemResource;
 import org.springframework.kafka.core.DefaultKafkaConsumerFactory;
-import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.transaction.PlatformTransactionManager;
 
 import javax.sql.DataSource;

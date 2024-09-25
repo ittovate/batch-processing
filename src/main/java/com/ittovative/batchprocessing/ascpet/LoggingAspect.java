@@ -1,4 +1,4 @@
-package com.ittovative.schedulingbatchprocessing.ascpet;
+package com.ittovative.batchprocessing.ascpet;
 
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.Around;
@@ -7,7 +7,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
-import static com.ittovative.schedulingbatchprocessing.util.AspectUtil.*;
+import static com.ittovative.batchprocessing.util.AspectUtil.*;
 
 
 @Aspect
@@ -22,7 +22,7 @@ public class LoggingAspect {
      * @param joinPoint which contains details about method called
      * @return the return value of the method
      */
-    @Around("execution(* com.ittovative.schedulingbatchprocessing.*.*.*(..))")
+    @Around("execution(* com.ittovative.batchprocessing.*.*.*(..))")
     public Object log(ProceedingJoinPoint joinPoint) throws Throwable {
         String className = getClassName(joinPoint);
         String methodName = getMethodName(joinPoint);

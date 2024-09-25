@@ -9,10 +9,10 @@
         <relativePath/> <!-- lookup parent from repository -->
     </parent>
     <groupId>com.ittovative</groupId>
-    <artifactId>scheduling-batch-processing</artifactId>
+    <artifactId>batch-processing</artifactId>
     <version>0.0.1-SNAPSHOT</version>
-    <name>scheduling-batch-processing</name>
-    <description>scheduling-batch-processing</description>
+    <name>batch-processing</name>
+    <description>batch-processing</description>
     <url/>
     <licenses>
         <license/>

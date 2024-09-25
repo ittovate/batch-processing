@@ -1,24 +1,15 @@
-package com.ittovative.schedulingbatchprocessing.controller;
+package com.ittovative.batchprocessing.controller;
 
-import com.ittovative.schedulingbatchprocessing.model.Order;
-import com.ittovative.schedulingbatchprocessing.service.OrderService;
-import com.ittovative.schedulingbatchprocessing.util.ApiResponse;
-import com.ittovative.schedulingbatchprocessing.util.BatchReadType;
-import org.springframework.batch.core.Job;
-import org.springframework.batch.core.JobExecution;
-import org.springframework.batch.core.JobParameters;
-import org.springframework.batch.core.JobParametersInvalidException;
-import org.springframework.batch.core.repository.JobExecutionAlreadyRunningException;
-import org.springframework.batch.core.repository.JobInstanceAlreadyCompleteException;
-import org.springframework.batch.core.repository.JobRestartException;
+import com.ittovative.batchprocessing.model.Order;
+import com.ittovative.batchprocessing.service.OrderService;
+import com.ittovative.batchprocessing.util.ApiResponse;
+import com.ittovative.batchprocessing.util.BatchReadType;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-
-import java.util.logging.Logger;
 
 @RestController
 @RequestMapping("api/v1")

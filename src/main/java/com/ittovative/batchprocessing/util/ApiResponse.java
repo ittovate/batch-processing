@@ -1,4 +1,4 @@
-package com.ittovative.schedulingbatchprocessing.util;
+package com.ittovative.batchprocessing.util;
 
 public class ApiResponse<T> {
     private final int statusCode;
