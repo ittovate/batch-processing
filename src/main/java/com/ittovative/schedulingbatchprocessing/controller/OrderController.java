@@ -2,6 +2,7 @@ package com.ittovative.schedulingbatchprocessing.controller;
 
 import com.ittovative.schedulingbatchprocessing.model.Order;
 import com.ittovative.schedulingbatchprocessing.service.OrderService;
+import com.ittovative.schedulingbatchprocessing.util.ApiResponse;
 import com.ittovative.schedulingbatchprocessing.util.BatchReadType;
 import org.springframework.batch.core.Job;
 import org.springframework.batch.core.JobExecution;
@@ -23,38 +24,49 @@ import java.util.logging.Logger;
 @RequestMapping("api/v1")
 public class OrderController {
     private final OrderService orderService;
-    private final Logger logger = Logger.getLogger(OrderController.class.getName());
     public OrderController(OrderService orderService) {
         this.orderService = orderService;
     }
 
     @PostMapping("/kafka")
-    public ResponseEntity<String> makeOrderKafka(@RequestBody Order order) {
-        logger.info("Making order: " + order);
+    public ResponseEntity<ApiResponse<String>> makeOrderKafka(@RequestBody Order order) {
         this.orderService.sendOrderToKafka(order);
-        logger.info("Sending response after making order");
-        return new ResponseEntity<>("Order successful!", HttpStatus.OK);
+        ApiResponse<String> apiResponse = new ApiResponse<>(
+                HttpStatus.OK.value(),
+                "Order sent to kafka successfully!",
+                null
+        );
+        return new ResponseEntity<>(apiResponse, HttpStatus.OK);
     }
     @PostMapping("/db")
-    public ResponseEntity<String> makeOrderDatabase(@RequestBody Order order) {
-        logger.info("Making order: " + order);
+    public ResponseEntity<ApiResponse<String>> makeOrderDatabase(@RequestBody Order order) {
         this.orderService.sendOrderToDatabase(order);
-        logger.info("Sending response after making order");
-        return new ResponseEntity<>("Order successful!", HttpStatus.OK);
+        ApiResponse<String> apiResponse = new ApiResponse<>(
+                HttpStatus.OK.value(),
+                "Order sent to database successfully!",
+                null
+        );
+        return new ResponseEntity<>(apiResponse, HttpStatus.OK);
     }
     @PostMapping("/batch-db")
-    public ResponseEntity<String> batchProcessDB() throws Exception {
-        logger.info("Starting batch process");
+    public ResponseEntity<ApiResponse<String>> batchProcessDB() throws Exception {
         this.orderService.batchProcess(BatchReadType.DATABASE);
-        logger.info("Ending batch process");
-        return new ResponseEntity<>("Order successful!", HttpStatus.OK);
+        ApiResponse<String> apiResponse = new ApiResponse<>(
+                HttpStatus.OK.value(),
+                "Batch processing from db started successfully!",
+                null
+        );
+        return new ResponseEntity<>(apiResponse, HttpStatus.OK);
     }
     @PostMapping("/batch-kafka")
-    public ResponseEntity<String> batchProcessKafka() throws Exception {
-        logger.info("Starting batch process");
+    public ResponseEntity<ApiResponse<String>> batchProcessKafka() throws Exception {
         this.orderService.batchProcess(BatchReadType.KAFKA);
-        logger.info("Ending batch process");
-        return new ResponseEntity<>("Order successful!", HttpStatus.OK);
+        ApiResponse<String> apiResponse = new ApiResponse<>(
+                HttpStatus.OK.value(),
+                "Batch processing from kafka started successfully!",
+                null
+        );
+        return new ResponseEntity<>(apiResponse, HttpStatus.OK);
     }
 
 }
