@@ -1,13 +1,12 @@
 package com.ittovative.batchprocessing.ascpet;
 
+import com.ittovative.batchprocessing.util.AspectUtil;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
-
-import com.ittovative.batchprocessing.util.AspectUtil;
 
 
 /**

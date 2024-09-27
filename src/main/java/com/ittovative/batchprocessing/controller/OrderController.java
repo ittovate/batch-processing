@@ -1,5 +1,9 @@
 package com.ittovative.batchprocessing.controller;
 
+import com.ittovative.batchprocessing.model.Order;
+import com.ittovative.batchprocessing.service.OrderService;
+import com.ittovative.batchprocessing.util.ApiResponse;
+import com.ittovative.batchprocessing.util.BatchReadType;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -7,14 +11,6 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.ittovative.batchprocessing.model.Order;
-import com.ittovative.batchprocessing.service.OrderService;
-import com.ittovative.batchprocessing.util.ApiResponse;
-import com.ittovative.batchprocessing.util.BatchReadType;
-
-/**
- * The type Order controller.
- */
 @RestController
 @RequestMapping("api/v1")
 public class OrderController {

@@ -1,8 +1,7 @@
 package com.ittovative.batchprocessing.service;
 
-import java.util.Date;
-import java.util.logging.Logger;
-
+import com.ittovative.batchprocessing.model.Order;
+import com.ittovative.batchprocessing.util.BatchReadType;
 import org.springframework.batch.core.Job;
 import org.springframework.batch.core.JobExecution;
 import org.springframework.batch.core.JobParameters;
@@ -12,12 +11,9 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Service;
 
-import com.ittovative.batchprocessing.model.Order;
-import com.ittovative.batchprocessing.util.BatchReadType;
+import java.util.Date;
+import java.util.logging.Logger;
 
-/**
- * The type Order service.
- */
 @Service
 public class OrderService {
     private final KafkaTemplate<Long, Order> kafkaTemplate;
