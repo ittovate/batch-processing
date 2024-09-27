@@ -1,5 +1,6 @@
 package com.ittovative.batchprocessing;
 
+
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
@@ -23,7 +24,7 @@ public class BatchProcessingApplication {
 
     /*@Bean
     public CommandLineRunner commandLineRunner(KafkaTemplate<Long, Order> kafkaTemplate) {
-        return (args) -> {
+        return args -> {
             for (int i = 0; i < 500; i++) {
                 Order person = new Order(i,"order#"+i,"dummy description");
                 kafkaTemplate.send("orders",person);

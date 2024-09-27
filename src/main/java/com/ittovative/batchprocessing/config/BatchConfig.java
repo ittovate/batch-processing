@@ -1,6 +1,7 @@
 package com.ittovative.batchprocessing.config;
 
 import com.ittovative.batchprocessing.model.Order;
+import com.ittovative.batchprocessing.util.AppConstants;
 import org.springframework.batch.core.Job;
 import org.springframework.batch.core.Step;
 import org.springframework.batch.core.job.builder.JobBuilder;
@@ -88,7 +89,7 @@ public class BatchConfig {
                                      DataSource dataSource,
                                      PagingQueryProvider pagingQueryProvider) {
         return new StepBuilder("database-order-processing-step", jobRepository)
-                .<Order, Order>chunk(5, platformTransactionManager)
+                .<Order, Order>chunk(AppConstants.CHUNK_SIZE, platformTransactionManager)
                 .reader(jdbcOrderItemReader(dataSource, pagingQueryProvider))
                 .processor(itemProcessor())
                 .writer(flatFileItemWriter())
@@ -108,7 +109,7 @@ public class BatchConfig {
                                   PlatformTransactionManager platformTransactionManager,
                                   DefaultKafkaConsumerFactory<Long, Order> defaultKafkaConsumerFactory) {
         return new StepBuilder("kafka-order-processing-step", jobRepository)
-                .<Order, Order>chunk(5, platformTransactionManager)
+                .<Order, Order>chunk(AppConstants.CHUNK_SIZE, platformTransactionManager)
                 .reader(kafkaOrderItemReader(defaultKafkaConsumerFactory))
                 .processor(itemProcessor())
                 .writer(flatFileItemWriter())
@@ -130,7 +131,7 @@ public class BatchConfig {
                 .name("jdbc-item-reader")
                 .dataSource(dataSource)
                 .queryProvider(pagingQueryProvider)
-                .pageSize(5)
+                .pageSize(AppConstants.PAGE_SIZE)
                 .rowMapper((resultSet, rowNum) -> {
                     int id = resultSet.getInt("id");
                     String name = resultSet.getString("name");
@@ -187,7 +188,7 @@ public class BatchConfig {
     public ItemProcessor<Order, Order> itemProcessor() {
         return item -> {
             logger.info("Order: {" + item.name().toLowerCase(Locale.ROOT) + "} is being processed!");
-            Thread.sleep(500); // simulating real processing time
+            Thread.sleep(AppConstants.THREAD_SLEEP_TIME_MS); // simulating real processing time
             return item;
         };
     }
