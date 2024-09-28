@@ -43,4 +43,4 @@ NOTE: there is a `docker-compose.yaml` file for both kafka ,zookeeper and postgr
     ```
     mvn clean install spring-boot:run
     ```
-# For more information on how to use this demo you can refer to `USAGE.md`
+### For more information on how to use this demo you can refer to [Usage](./USAGE.md).
