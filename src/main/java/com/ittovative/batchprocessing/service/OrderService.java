@@ -59,7 +59,7 @@ public class OrderService {
     public void sendOrderToDatabase(Order order) {
         logger.info("Sending order: " + order);
         String sql = "INSERT INTO orders (name, description) VALUES (?, ?)";
-        jdbcTemplate.update(sql, order.name(), order.description());
+        jdbcTemplate.update(sql, order.getName(), order.getDescription());
         logger.info("Order saved into database");
     }
 

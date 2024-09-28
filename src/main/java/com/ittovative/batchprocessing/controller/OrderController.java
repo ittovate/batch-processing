@@ -1,5 +1,6 @@
 package com.ittovative.batchprocessing.controller;
 
+import com.ittovative.batchprocessing.dto.OrderDto;
 import com.ittovative.batchprocessing.model.Order;
 import com.ittovative.batchprocessing.service.OrderService;
 import com.ittovative.batchprocessing.util.ApiResponse;
@@ -49,8 +50,9 @@ public class OrderController {
      * @return the response entity
      */
     @PostMapping("/db")
-    public ResponseEntity<ApiResponse<String>> makeOrderDatabase(@RequestBody Order order) {
-        orderService.sendOrderToDatabase(order);
+    public ResponseEntity<ApiResponse<String>> makeOrderDatabase(@RequestBody OrderDto order) {
+        Order convertedOrder = new Order(order.name(),order.description());
+        orderService.sendOrderToDatabase(convertedOrder);
         ApiResponse<String> apiResponse = new ApiResponse<>(
                 HttpStatus.OK.value(),
                 "Order sent to database successfully!",
