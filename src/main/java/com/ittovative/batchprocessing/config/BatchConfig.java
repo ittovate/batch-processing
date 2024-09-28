@@ -187,7 +187,7 @@ public class BatchConfig {
     @Bean
     public ItemProcessor<Order, Order> itemProcessor() {
         return item -> {
-            logger.info("Order: {" + item.name().toLowerCase(Locale.ROOT) + "} is being processed!");
+            logger.info("Order: {" + item.getName().toLowerCase(Locale.ROOT) + "} is being processed!");
             Thread.sleep(AppConstants.THREAD_SLEEP_TIME_MS); // simulating real processing time
             return item;
         };
