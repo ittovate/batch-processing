@@ -33,8 +33,8 @@ public class OrderController {
      * @return the response entity
      */
     @PostMapping("/kafka")
-    public ResponseEntity<ApiResponse<String>> makeOrderKafka(@RequestBody Order order) {
-        orderService.sendOrderToKafka(order);
+    public ResponseEntity<ApiResponse<String>> makeOrderKafka(@RequestBody OrderDto orderDto) {
+        orderService.sendOrderToKafka(orderDto);
         ApiResponse<String> apiResponse = new ApiResponse<>(
                 HttpStatus.OK.value(),
                 "Order sent to kafka successfully!",

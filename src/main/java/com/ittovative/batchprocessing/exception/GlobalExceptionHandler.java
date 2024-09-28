@@ -20,6 +20,7 @@ public class GlobalExceptionHandler {
      */
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ApiResponse<String>> handle(Exception exception) {
+        exception.fillInStackTrace();
         ApiResponse<String> apiResponse = new ApiResponse<>(
                 HttpStatus.INTERNAL_SERVER_ERROR.value(),
                 HttpStatus.INTERNAL_SERVER_ERROR.getReasonPhrase(),
