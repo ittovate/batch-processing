@@ -1,5 +1,6 @@
 package com.ittovative.batchprocessing.service;
 
+import com.ittovative.batchprocessing.dto.OrderDto;
 import com.ittovative.batchprocessing.model.Order;
 import com.ittovative.batchprocessing.util.BatchReadType;
 import org.springframework.batch.core.Job;
@@ -16,7 +17,7 @@ import java.util.logging.Logger;
 
 @Service
 public class OrderService {
-    private final KafkaTemplate<Long, Order> kafkaTemplate;
+    private final KafkaTemplate<Long, OrderDto> kafkaTemplate;
     private final JdbcTemplate jdbcTemplate;
     private final Logger logger = Logger.getLogger(OrderService.class.getName());
     private final ApplicationContext applicationContext;
@@ -30,7 +31,7 @@ public class OrderService {
      * @param jobLauncher        the job launcher
      * @param jdbcTemplate       the jdbc template
      */
-    public OrderService(KafkaTemplate<Long, Order> kafkaTemplate,
+    public OrderService(KafkaTemplate<Long, OrderDto> kafkaTemplate,
                         ApplicationContext applicationContext,
                         JobLauncher jobLauncher,
                         JdbcTemplate jdbcTemplate) {
@@ -45,9 +46,9 @@ public class OrderService {
      *
      * @param order the order
      */
-    public void sendOrderToKafka(Order order) {
-        logger.info("Sending order: " + order);
-        kafkaTemplate.send("orders", order);
+    public void sendOrderToKafka(OrderDto orderDto) {
+        logger.info("Sending order: " + orderDto);
+        kafkaTemplate.send("orders", orderDto);
         logger.info("Order sent to kafka");
     }
 
