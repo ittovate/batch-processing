@@ -1,5 +1,6 @@
 package com.ittovative.batchprocessing.ascpet;
 
+import com.ittovative.batchprocessing.util.AspectUtil;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;
@@ -7,9 +8,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
-import static com.ittovative.batchprocessing.util.AspectUtil.*;
 
-
+/**
+ * The type Logging aspect.
+ */
 @Aspect
 @Component
 public class LoggingAspect {
@@ -21,12 +23,13 @@ public class LoggingAspect {
      *
      * @param joinPoint which contains details about method called
      * @return the return value of the method
+     * @throws Throwable the throwable
      */
     @Around("execution(* com.ittovative.batchprocessing.*.*.*(..))")
     public Object log(ProceedingJoinPoint joinPoint) throws Throwable {
-        String className = getClassName(joinPoint);
-        String methodName = getMethodName(joinPoint);
-        StringBuilder args = getMethodArgs(joinPoint);
+        String className = AspectUtil.getClassName(joinPoint);
+        String methodName = AspectUtil.getMethodName(joinPoint);
+        StringBuilder args = AspectUtil.getMethodArgs(joinPoint);
         Object returnVal = null;
 
         LOGGER.info("Executing ===> {}.{} with arguments: [{}]", className, methodName, args);

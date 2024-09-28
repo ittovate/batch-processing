@@ -22,6 +22,14 @@ public class OrderService {
     private final ApplicationContext applicationContext;
     private final JobLauncher jobLauncher;
 
+    /**
+     * Instantiates a new Order service.
+     *
+     * @param kafkaTemplate      the kafka template
+     * @param applicationContext the application context
+     * @param jobLauncher        the job launcher
+     * @param jdbcTemplate       the jdbc template
+     */
     public OrderService(KafkaTemplate<Long, Order> kafkaTemplate,
                         ApplicationContext applicationContext,
                         JobLauncher jobLauncher,
@@ -32,33 +40,48 @@ public class OrderService {
         this.jdbcTemplate = jdbcTemplate;
     }
 
+    /**
+     * Send order to kafka.
+     *
+     * @param order the order
+     */
     public void sendOrderToKafka(Order order) {
         logger.info("Sending order: " + order);
         kafkaTemplate.send("orders", order);
         logger.info("Order sent to kafka");
     }
 
+    /**
+     * Send order to database.
+     *
+     * @param order the order
+     */
     public void sendOrderToDatabase(Order order) {
         logger.info("Sending order: " + order);
         String sql = "INSERT INTO orders (name, description) VALUES (?, ?)";
         jdbcTemplate.update(sql, order.name(), order.description());
         logger.info("Order saved into database");
     }
+
+    /**
+     * Batch process.
+     *
+     * @param batchReadType the batch read type
+     * @throws Exception the exception
+     */
     public void batchProcess(BatchReadType batchReadType) throws Exception {
         String beanName;
-        if (batchReadType.equals(BatchReadType.DATABASE)) {
+        if (batchReadType == BatchReadType.DATABASE) {
             beanName = "databaseOrderProcessingJob";
-        }
-        else if (batchReadType.equals(BatchReadType.KAFKA)) {
+        } else if (batchReadType == BatchReadType.KAFKA) {
             beanName = "kafkaOrderProcessingJob";
-        }
-        else {
+        } else {
             throw new Exception("Read type is not supported!");
         }
         Job scheduledJob = (Job) applicationContext.getBean(beanName);
         Date date = new Date();
         logger.info("Job scheduled at: " + date);
-        JobExecution jobExecution = jobLauncher.run(scheduledJob,new JobParameters());
+        JobExecution jobExecution = jobLauncher.run(scheduledJob, new JobParameters());
         logger.info("Job execution completed with status: " + jobExecution.getStatus());
     }
 

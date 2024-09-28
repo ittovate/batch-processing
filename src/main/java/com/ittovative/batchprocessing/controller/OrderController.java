@@ -15,13 +15,25 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("api/v1")
 public class OrderController {
     private final OrderService orderService;
+
+    /**
+     * Instantiates a new Order controller.
+     *
+     * @param orderService the order service
+     */
     public OrderController(OrderService orderService) {
         this.orderService = orderService;
     }
 
+    /**
+     * Make order kafka response entity.
+     *
+     * @param order the order
+     * @return the response entity
+     */
     @PostMapping("/kafka")
     public ResponseEntity<ApiResponse<String>> makeOrderKafka(@RequestBody Order order) {
-        this.orderService.sendOrderToKafka(order);
+        orderService.sendOrderToKafka(order);
         ApiResponse<String> apiResponse = new ApiResponse<>(
                 HttpStatus.OK.value(),
                 "Order sent to kafka successfully!",
@@ -29,9 +41,16 @@ public class OrderController {
         );
         return new ResponseEntity<>(apiResponse, HttpStatus.OK);
     }
+
+    /**
+     * Make order database response entity.
+     *
+     * @param order the order
+     * @return the response entity
+     */
     @PostMapping("/db")
     public ResponseEntity<ApiResponse<String>> makeOrderDatabase(@RequestBody Order order) {
-        this.orderService.sendOrderToDatabase(order);
+        orderService.sendOrderToDatabase(order);
         ApiResponse<String> apiResponse = new ApiResponse<>(
                 HttpStatus.OK.value(),
                 "Order sent to database successfully!",
@@ -39,9 +58,16 @@ public class OrderController {
         );
         return new ResponseEntity<>(apiResponse, HttpStatus.OK);
     }
+
+    /**
+     * Batch process db response entity.
+     *
+     * @return the response entity
+     * @throws Exception the exception
+     */
     @PostMapping("/batch-db")
     public ResponseEntity<ApiResponse<String>> batchProcessDB() throws Exception {
-        this.orderService.batchProcess(BatchReadType.DATABASE);
+        orderService.batchProcess(BatchReadType.DATABASE);
         ApiResponse<String> apiResponse = new ApiResponse<>(
                 HttpStatus.OK.value(),
                 "Batch processing from db started successfully!",
@@ -49,9 +75,16 @@ public class OrderController {
         );
         return new ResponseEntity<>(apiResponse, HttpStatus.OK);
     }
+
+    /**
+     * Batch process kafka response entity.
+     *
+     * @return the response entity
+     * @throws Exception the exception
+     */
     @PostMapping("/batch-kafka")
     public ResponseEntity<ApiResponse<String>> batchProcessKafka() throws Exception {
-        this.orderService.batchProcess(BatchReadType.KAFKA);
+        orderService.batchProcess(BatchReadType.KAFKA);
         ApiResponse<String> apiResponse = new ApiResponse<>(
                 HttpStatus.OK.value(),
                 "Batch processing from kafka started successfully!",

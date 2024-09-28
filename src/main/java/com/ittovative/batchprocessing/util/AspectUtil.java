@@ -2,6 +2,9 @@ package com.ittovative.batchprocessing.util;
 
 import org.aspectj.lang.JoinPoint;
 
+/**
+ * The type Aspect util.
+ */
 public final class AspectUtil {
     /**
      * Gets class name
