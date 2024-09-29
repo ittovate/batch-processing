@@ -8,7 +8,6 @@ POST http://localhost:8080/api/v1/kafka
 Content-Type: application/json
 
 {
-"id" 0:,
 "description": "example",
 "name": "example"
 }
@@ -22,7 +21,6 @@ POST http://localhost:8080/api/v1/kafka
 Content-Type: application/json
 
 {
-"id" 0:,
 "description": "example",
 "name": "example"
 }
