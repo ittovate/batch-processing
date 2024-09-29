@@ -1,6 +1,6 @@
 # Batch Processing Demo
 
-This is a batch brocessing demo used for processing chunks of data from a kafka broker or a relational database and can be restarted if any error occurs inside the batch processing
+This is a batch brocessing demo used for processing chunks of data from a kafka broker or a relational database and writing them in chunks in a CSV file and can be restarted if any error occurs inside the batch processing
 
 
 # Prerequisites: 
