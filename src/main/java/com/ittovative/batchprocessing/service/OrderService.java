@@ -1,8 +1,9 @@
 package com.ittovative.batchprocessing.service;
 
-import com.ittovative.batchprocessing.dto.OrderDto;
+import static com.ittovative.batchprocessing.constant.AppConstant.KAFKA_TOPIC;
+
 import com.ittovative.batchprocessing.model.Order;
-import com.ittovative.batchprocessing.util.BatchReadType;
+import com.ittovative.batchprocessing.enums.BatchReadType;
 import org.springframework.batch.core.Job;
 import org.springframework.batch.core.JobExecution;
 import org.springframework.batch.core.JobParameters;
@@ -17,7 +18,7 @@ import java.util.logging.Logger;
 
 @Service
 public class OrderService {
-    private final KafkaTemplate<Long, OrderDto> kafkaTemplate;
+    private final KafkaTemplate<Long, Order> kafkaTemplate;
     private final JdbcTemplate jdbcTemplate;
     private final Logger logger = Logger.getLogger(OrderService.class.getName());
     private final ApplicationContext applicationContext;
@@ -31,7 +32,7 @@ public class OrderService {
      * @param jobLauncher        the job launcher
      * @param jdbcTemplate       the jdbc template
      */
-    public OrderService(KafkaTemplate<Long, OrderDto> kafkaTemplate,
+    public OrderService(KafkaTemplate<Long, Order> kafkaTemplate,
                         ApplicationContext applicationContext,
                         JobLauncher jobLauncher,
                         JdbcTemplate jdbcTemplate) {
@@ -46,9 +47,9 @@ public class OrderService {
      *
      * @param order the order
      */
-    public void sendOrderToKafka(OrderDto orderDto) {
-        logger.info("Sending order: " + orderDto);
-        kafkaTemplate.send("orders", orderDto);
+    public void sendOrderToKafka(Order order) {
+        logger.info("Sending order: " + order);
+        kafkaTemplate.send(KAFKA_TOPIC, order);
         logger.info("Order sent to kafka");
     }
 
@@ -60,7 +61,7 @@ public class OrderService {
     public void sendOrderToDatabase(Order order) {
         logger.info("Sending order: " + order);
         String sql = "INSERT INTO orders (name, description) VALUES (?, ?)";
-        jdbcTemplate.update(sql, order.getName(), order.getDescription());
+        jdbcTemplate.update(sql, order.name(), order.description());
         logger.info("Order saved into database");
     }
 
