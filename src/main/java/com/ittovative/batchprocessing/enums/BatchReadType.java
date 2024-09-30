@@ -1,4 +1,4 @@
-package com.ittovative.batchprocessing.util;
+package com.ittovative.batchprocessing.enums;
 
 /**
  * The enum Batch read type.

@@ -1,8 +1,9 @@
 package com.ittovative.batchprocessing.exception;
 
-import com.ittovative.batchprocessing.util.ApiResponse;
+import com.ittovative.batchprocessing.util.APIResponse;
+import com.ittovative.batchprocessing.util.ResponseUtil;
+
 import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
@@ -19,14 +20,10 @@ public class GlobalExceptionHandler {
      * @return the response entity
      */
     @ExceptionHandler(Exception.class)
-    public ResponseEntity<ApiResponse<String>> handle(Exception exception) {
+    public APIResponse<String> handle(Exception exception) {
         exception.fillInStackTrace();
-        ApiResponse<String> apiResponse = new ApiResponse<>(
-                HttpStatus.INTERNAL_SERVER_ERROR.value(),
-                HttpStatus.INTERNAL_SERVER_ERROR.getReasonPhrase(),
-                null
-        );
-        return new ResponseEntity<>(apiResponse, HttpStatus.INTERNAL_SERVER_ERROR);
+        return ResponseUtil.createUnifiedResponse(HttpStatus.INTERNAL_SERVER_ERROR.value(),
+                HttpStatus.INTERNAL_SERVER_ERROR.getReasonPhrase(),null);
     }
 
 }

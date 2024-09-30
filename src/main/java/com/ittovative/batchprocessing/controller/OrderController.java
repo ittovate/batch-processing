@@ -1,12 +1,31 @@
 package com.ittovative.batchprocessing.controller;
 
-import com.ittovative.batchprocessing.dto.OrderDto;
+import static com.ittovative.batchprocessing.config.APIResponseConstant.ADD_ORDER_SUCCESSFUL_MESSAGE;
+import static com.ittovative.batchprocessing.config.APIResponseConstant.BATCH_SUCCESS_MESSAGE;
+import static com.ittovative.batchprocessing.constant.SwaggerConstant.ADD_ORDER_DB_SUMMARY;
+import static com.ittovative.batchprocessing.constant.SwaggerConstant.ADD_ORDER_DESCRIPTION;
+import static com.ittovative.batchprocessing.constant.SwaggerConstant.ADD_ORDER_OK_RESPONSE_EXAMPLE;
+import static com.ittovative.batchprocessing.constant.SwaggerConstant.ADD_ORDER_REQUEST_EXAMPLE;
+import static com.ittovative.batchprocessing.constant.SwaggerConstant.ADD_ORDER_KAFKA_SUMMARY;
+import static com.ittovative.batchprocessing.constant.SwaggerConstant.START_BATCH_DESCRIPTION;
+import static com.ittovative.batchprocessing.constant.SwaggerConstant.START_BATCH_OK;
+import static com.ittovative.batchprocessing.constant.SwaggerConstant.START_BATCH_OK_RESPONSE_EXAMPLE;
+import static com.ittovative.batchprocessing.constant.SwaggerConstant.START_BATCH_SUMMARY_DB;
+import static com.ittovative.batchprocessing.constant.SwaggerConstant.START_BATCH_SUMMARY_KAFKA;
+import static org.springframework.http.HttpStatus.CREATED;
+
 import com.ittovative.batchprocessing.model.Order;
 import com.ittovative.batchprocessing.service.OrderService;
-import com.ittovative.batchprocessing.util.ApiResponse;
-import com.ittovative.batchprocessing.util.BatchReadType;
+import com.ittovative.batchprocessing.util.APIResponse;
+import com.ittovative.batchprocessing.enums.BatchReadType;
+import com.ittovative.batchprocessing.util.ResponseUtil;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.ExampleObject;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+
 import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -32,15 +51,22 @@ public class OrderController {
      * @param order the order
      * @return the response entity
      */
+    @Operation(summary = ADD_ORDER_KAFKA_SUMMARY, description = ADD_ORDER_DESCRIPTION,
+            requestBody = @io.swagger.v3.oas.annotations.parameters.RequestBody(required = true,
+                    content = @Content(schema = @Schema(implementation = Order.class),
+                            examples = @ExampleObject(ADD_ORDER_REQUEST_EXAMPLE))),
+            responses = @ApiResponse(
+            responseCode = "201",
+            content = @Content(
+                    schema = @Schema(implementation = APIResponse.class),
+                    examples = @ExampleObject(ADD_ORDER_OK_RESPONSE_EXAMPLE)
+            )
+    ))
     @PostMapping("/kafka")
-    public ResponseEntity<ApiResponse<String>> makeOrderKafka(@RequestBody OrderDto orderDto) {
+    public APIResponse<String> makeOrderKafka(@RequestBody Order orderDto) {
         orderService.sendOrderToKafka(orderDto);
-        ApiResponse<String> apiResponse = new ApiResponse<>(
-                HttpStatus.OK.value(),
-                "Order sent to kafka successfully!",
-                null
-        );
-        return new ResponseEntity<>(apiResponse, HttpStatus.OK);
+        return ResponseUtil.createUnifiedResponse(CREATED.value(),
+                ADD_ORDER_SUCCESSFUL_MESSAGE,null);
     }
 
     /**
@@ -49,16 +75,21 @@ public class OrderController {
      * @param order the order
      * @return the response entity
      */
+    @Operation(summary = ADD_ORDER_DB_SUMMARY, description = ADD_ORDER_DESCRIPTION,
+            requestBody = @io.swagger.v3.oas.annotations.parameters.RequestBody(required = true,
+                    content = @Content(schema = @Schema(implementation = Order.class),
+                            examples = @ExampleObject(ADD_ORDER_REQUEST_EXAMPLE))), responses = @ApiResponse(
+            responseCode = "201",
+            content = @Content(
+                    schema = @Schema(implementation = APIResponse.class),
+                    examples = @ExampleObject(ADD_ORDER_OK_RESPONSE_EXAMPLE)
+            )
+    ))
     @PostMapping("/db")
-    public ResponseEntity<ApiResponse<String>> makeOrderDatabase(@RequestBody OrderDto order) {
-        Order convertedOrder = new Order(order.name(),order.description());
-        orderService.sendOrderToDatabase(convertedOrder);
-        ApiResponse<String> apiResponse = new ApiResponse<>(
-                HttpStatus.OK.value(),
-                "Order sent to database successfully!",
-                null
-        );
-        return new ResponseEntity<>(apiResponse, HttpStatus.OK);
+    public APIResponse<String> makeOrderDatabase(@RequestBody Order order) {
+        orderService.sendOrderToDatabase(order);
+        return ResponseUtil.createUnifiedResponse(CREATED.value(),ADD_ORDER_SUCCESSFUL_MESSAGE
+                ,null);
     }
 
     /**
@@ -67,15 +98,19 @@ public class OrderController {
      * @return the response entity
      * @throws Exception the exception
      */
+    @Operation(summary = START_BATCH_SUMMARY_DB + " from database", description = START_BATCH_DESCRIPTION,
+            responses = @ApiResponse(
+            responseCode = START_BATCH_OK,
+            content = @Content(
+                    schema = @Schema(implementation = APIResponse.class),
+                    examples = @ExampleObject(START_BATCH_OK_RESPONSE_EXAMPLE)
+            )
+    ))
     @PostMapping("/batch-db")
-    public ResponseEntity<ApiResponse<String>> batchProcessDB() throws Exception {
+    public APIResponse<String> batchProcessDB() throws Exception {
         orderService.batchProcess(BatchReadType.DATABASE);
-        ApiResponse<String> apiResponse = new ApiResponse<>(
-                HttpStatus.OK.value(),
-                "Batch processing from db started successfully!",
-                null
-        );
-        return new ResponseEntity<>(apiResponse, HttpStatus.OK);
+        return ResponseUtil.createUnifiedResponse(HttpStatus.OK.value(),
+                BATCH_SUCCESS_MESSAGE,null);
     }
 
     /**
@@ -84,15 +119,19 @@ public class OrderController {
      * @return the response entity
      * @throws Exception the exception
      */
+    @Operation(summary = START_BATCH_SUMMARY_KAFKA, description = START_BATCH_DESCRIPTION,
+            responses = @ApiResponse(
+            responseCode = START_BATCH_OK,
+            content = @Content(
+                    schema = @Schema(implementation = APIResponse.class),
+                    examples = @ExampleObject(START_BATCH_OK_RESPONSE_EXAMPLE)
+            )
+    ))
     @PostMapping("/batch-kafka")
-    public ResponseEntity<ApiResponse<String>> batchProcessKafka() throws Exception {
+    public APIResponse<String> batchProcessKafka() throws Exception {
         orderService.batchProcess(BatchReadType.KAFKA);
-        ApiResponse<String> apiResponse = new ApiResponse<>(
-                HttpStatus.OK.value(),
-                "Batch processing from kafka started successfully!",
-                null
-        );
-        return new ResponseEntity<>(apiResponse, HttpStatus.OK);
+        return ResponseUtil.createUnifiedResponse(HttpStatus.OK.value(),
+                BATCH_SUCCESS_MESSAGE,null);
     }
 
 }
